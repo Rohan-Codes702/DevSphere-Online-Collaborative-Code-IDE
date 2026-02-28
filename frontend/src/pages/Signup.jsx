@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../images/logo.png'
 import image from '../images/authPageSide.png'
+import { api_base_url } from '../helper';
 
 function Signup() {
 
@@ -15,6 +16,25 @@ function Signup() {
 
   const submitForm = (e) => {
     e.preventDefault();
+    fetch(api_base_url+"/signup",{
+      mode:"cors",
+      method:"POST",
+      header:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        username:username,
+        name:name,
+        email:email,
+        password:pwd
+      })
+    })
+    .then((res)=>res.json())
+    .then((data)=>{
+      if(data.success==="success"){
+        alert("Account Created Sucessfully");
+      }
+    })
 
     if (!username || !name || !email || !pwd) {
       setError("All fields are required");

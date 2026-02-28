@@ -1,8 +1,15 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err));
+const mongoUri = process.env.MONGO_URI || process.env.MONGOURI;
+
+if (!mongoUri) {
+  console.warn("Mongo URI is missing. Set MONGO_URI in backend/.env");
+} else {
+  mongoose
+    .connect(mongoUri)
+    .then(() => console.log("MongoDB Connected"))
+    .catch((err) => console.log("MongoDB connection error:", err.message));
+}
 
 const userSchema = new mongoose.Schema({
   name: {
