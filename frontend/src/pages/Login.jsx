@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/logo.png";
 import image from "../images/authPageSide.png";
+import { api_base_url } from "../helper";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,25 +11,29 @@ function Login() {
 
   const navigate = useNavigate();
 
-  const submitForm = (e) => {
+   const submitForm = (e) => {
     e.preventDefault();
-
-    if (!email || !pwd) {
-      setError("All fields are required");
-      return;
-    }
-
-    const userData = {
-      email,
-      password: pwd,
-    };
-
-    localStorage.setItem("user", JSON.stringify(userData));
-    setError("");
-
-    // Redirect after login
-    navigate("/");
-  };
+    fetch(api_base_url + "/login",{
+      mode: "cors",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: email,
+        password: pwd
+      })
+    }).then(res => res.json()).then(data => {
+      if(data.success === true){
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("isLoggedIn", true);
+        localStorage.setItem("userId", data.userId);
+        navigate('/');
+      } else {
+        setError(data.message);
+      }
+    })
+  }
 
     return (
   <div className="w-full min-h-screen flex flex-col lg:flex-row">
