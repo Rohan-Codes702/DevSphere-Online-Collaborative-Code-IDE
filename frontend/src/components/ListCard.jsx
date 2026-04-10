@@ -1,82 +1,63 @@
-import React from "react";
-import { useState } from "react";
-import img from "../images/code.png";
-import deleteImg from "../images/delete.png";
+import React, { useState } from 'react'
+import img from "../images/code.png"
+import deleteImg from "../images/delete.png"
+import { api_base_url } from '../helper';
+import { useNavigate } from 'react-router-dom';
 
-function ListCard() {
+const ListCard = ({item}) => {
+  const navigate = useNavigate();
   const [isDeleteModelShow, setIsDeleteModelShow] = useState(false);
-
+  
+  const deleteProj = (id) => {
+    fetch(api_base_url + "/deleteProject",{
+      mode: "cors",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        progId: id,
+        userId: localStorage.getItem("userId")
+      })
+    }).then(res=>res.json()).then(data=>{
+      if(data.success){
+        setIsDeleteModelShow(false)
+        window.location.reload()
+      }else{
+        alert(data.message)
+        setIsDeleteModelShow(false)
+      }
+    })
+  }
   return (
     <>
-      {/* CARD */}
-      <div className="mb-4 mx-[100px] flex items-center justify-between p-4 bg-[#141414] cursor-pointer rounded-xl hover:bg-[#202020] transition-all duration-300 shadow-md">
-
-        <div className="flex items-center gap-4">
-          <img className="w-[70px]" src={img} alt="code" />
-
+      <div className="listCard mb-2 w-[full] flex items-center justify-between p-[10px] bg-[#141414] cursor-pointer rounded-lg hover:bg-[#202020]">
+        <div onClick={()=>{navigate(`/editior/${item._id}`)}} className='flex items-center gap-2'>
+          <img className='w-[80px]' src={img} alt="" />
           <div>
-            <h3 className="text-[20px] text-white font-semibold">
-              MyFirst Project
-            </h3>
-            <p className="text-gray-400 text-[14px]">
-              Created in 9 days
-            </p>
+            <h3 className='text-[20px]'>{item.title}</h3>
+            <p className='text-[gray] text-[14px]'>Created in {new Date(item.date).toDateString()}</p>
           </div>
         </div>
-
         <div>
-          <img
-            onClick={() => setIsDeleteModelShow(true)}
-            className="w-[28px] cursor-pointer mr-4 hover:scale-110 transition-transform duration-200"
-            src={deleteImg}
-            alt="delete"
-          />
+          <img onClick={()=>{setIsDeleteModelShow(true)}} className='w-[30px] cursor-pointer mr-4' src={deleteImg} alt="" />
         </div>
       </div>
 
-      
-{isDeleteModelShow && (
-  <div className="fixed inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70 backdrop-blur-md flex justify-center items-center z-50 transition-all duration-300">
-
-    <div className="w-[90%] sm:w-[420px] bg-gradient-to-b from-[#1f1f1f] to-[#141414] border border-[#2a2a2a] rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.6)] transform transition-all duration-300 scale-100">
-
-     
-      <div className="flex justify-center mb-5">
-        <div className="w-16 h-16 flex items-center justify-center rounded-full bg-red-500/20 border border-red-500/40">
-          <span className="text-red-500 text-3xl font-bold">!</span>
-        </div>
-      </div>
-
-      <h3 className="text-2xl text-white font-semibold text-center leading-snug">
-        Delete this project?
-      </h3>
-
-      <p className="text-gray-400 text-sm text-center mt-2">
-        This action cannot be undone.
-      </p>
-
-      <div className="flex gap-4 mt-8">
-
-        <button
-          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium tracking-wide shadow-lg hover:shadow-red-500/30 transition-all duration-300 hover:scale-[1.03]"
-        >
-          Delete
-        </button>
-
-        <button
-          onClick={() => setIsDeleteModelShow(false)}
-          className="flex-1 py-3 rounded-xl bg-[#1A1919] border border-[#2a2a2a] hover:bg-[#222] text-white font-medium tracking-wide transition-all duration-300 hover:scale-[1.03]"
-        >
-          Cancel
-        </button>
-
-      </div>
-
-    </div>
-  </div>
-)}
+      {
+        isDeleteModelShow ? <div className="model fixed top-0 left-0 w-screen h-screen bg-[rgba(0,0,0,0.1)] flex justify-center items-center flex-col">
+          <div className="mainModel w-[25vw] h-[25vh] bg-[#141414] rounded-lg p-[20px]">
+            <h3 className='text-3xl'>Do you want to delete <br />
+              this project</h3>
+            <div className='flex w-full mt-5 items-center gap-[10px]'>
+              <button onClick={()=>{deleteProj(item._id)}} className='p-[10px] rounded-lg bg-[#FF4343] text-white cursor-pointer min-w-[49%]'>Delete</button>
+              <button onClick={()=>{setIsDeleteModelShow(false)}} className='p-[10px] rounded-lg bg-[#1A1919] text-white cursor-pointer min-w-[49%]'>Cancel</button>
+            </div>
+          </div>
+        </div> : ""
+      }
     </>
-  );
+  )
 }
 
-export default ListCard;
+export default ListCard
